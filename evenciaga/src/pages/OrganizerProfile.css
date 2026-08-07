@@ -1,0 +1,1026 @@
+/* =========================================================
+   ORGANIZER PROFILE PAGE
+========================================================= */
+
+.organizer-profile-page {
+  min-height: 100vh;
+  padding: 32px 16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef4ff 0%,
+      #f8fafc 55%,
+      #eefbf5 100%
+    );
+}
+
+.organizer-profile-container {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+
+  display: grid;
+  gap: 22px;
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.organizer-profile-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.organizer-profile-edit-button {
+  min-height: 44px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--primary);
+  border-radius: 11px;
+
+  background: var(--primary);
+  color: white;
+
+  cursor: pointer;
+
+  font-weight: 750;
+
+  box-shadow:
+    0 10px 20px rgba(49, 87, 229, 0.18);
+}
+
+.organizer-profile-edit-button:hover {
+  border-color: var(--primary-dark);
+
+  background: var(--primary-dark);
+}
+
+
+/* =========================================================
+   PROFILE HERO
+========================================================= */
+
+.organizer-profile-hero {
+  position: relative;
+
+  display: grid;
+  grid-template-columns:
+    120px
+    minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+
+  padding: 34px;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(120, 144, 255, 0.3),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #101b3d,
+      #1f3d90 58%,
+      #3157e5
+    );
+
+  color: white;
+
+  box-shadow:
+    0 24px 55px rgba(16, 27, 61, 0.2);
+}
+
+.organizer-profile-hero::after {
+  content: "";
+
+  position: absolute;
+  right: -90px;
+  bottom: -110px;
+
+  width: 280px;
+  height: 280px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
+.organizer-profile-logo,
+.organizer-profile-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.organizer-profile-logo {
+  width: 120px;
+  height: 120px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  border: 4px solid rgba(255, 255, 255, 0.35);
+  border-radius: 24px;
+
+  background: white;
+  color: var(--primary);
+
+  font-size: 46px;
+  font-weight: 800;
+
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.16);
+}
+
+.organizer-profile-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.organizer-profile-eyebrow {
+  margin: 0 0 8px;
+
+  color: #bed0ff;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.organizer-profile-hero h1 {
+  margin: 0;
+
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.organizer-profile-owner {
+  margin: 10px 0 0;
+
+  color: #dce5ff;
+
+  font-size: 15px;
+}
+
+.organizer-profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.organizer-profile-status,
+.organizer-profile-type {
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.organizer-profile-status.approved {
+  background: rgba(143, 240, 199, 0.16);
+  color: #9ff2d0;
+}
+
+.organizer-profile-status.pending {
+  background: rgba(255, 218, 147, 0.14);
+  color: #ffd88d;
+}
+
+.organizer-profile-type {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.organizer-profile-location {
+  margin: 16px 0 0;
+
+  color: #dce5ff;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.organizer-profile-stats {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.organizer-profile-stat-card {
+  min-height: 130px;
+
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+
+  padding: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: 17px;
+
+  background: white;
+
+  text-align: center;
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.organizer-profile-stat-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #c5d0ff;
+
+  box-shadow: var(--shadow-md);
+}
+
+.organizer-profile-stat-card span {
+  font-size: 24px;
+}
+
+.organizer-profile-stat-card strong {
+  color: var(--navy);
+
+  font-size: 27px;
+}
+
+.organizer-profile-stat-card small {
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 750;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SHARED PROFILE CARDS
+========================================================= */
+
+.organizer-profile-card {
+  padding: 26px;
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  background: white;
+
+  box-shadow: var(--shadow-sm);
+}
+
+.organizer-profile-card h2 {
+  margin: 0 0 18px;
+
+  color: var(--navy);
+
+  font-size: 23px;
+  letter-spacing: -0.025em;
+}
+
+.organizer-profile-card > p {
+  margin: 0;
+
+  color: var(--muted);
+
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   ORGANIZATION INFORMATION
+========================================================= */
+
+.organizer-profile-info-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.organizer-profile-info-grid > div {
+  display: grid;
+  gap: 6px;
+
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background: #fbfcff;
+}
+
+.organizer-profile-info-grid span {
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 750;
+
+  text-transform: uppercase;
+}
+
+.organizer-profile-info-grid strong {
+  color: var(--navy);
+
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   PROFESSIONAL LINKS
+========================================================= */
+
+.organizer-profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.organizer-profile-links a {
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background: #fbfcff;
+  color: var(--primary);
+
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.organizer-profile-links a:hover {
+  border-color: var(--primary);
+
+  background: var(--primary-soft);
+}
+
+.organizer-profile-links p {
+  margin: 0;
+
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.organizer-profile-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+
+  margin-bottom: 18px;
+}
+
+.organizer-profile-section-heading h2 {
+  margin: 0;
+}
+
+.organizer-profile-section-heading button {
+  padding: 7px 0;
+
+  border: 0;
+
+  background: transparent;
+  color: var(--primary);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   RECENT EVENTS
+========================================================= */
+
+.organizer-profile-events {
+  display: grid;
+  gap: 12px;
+}
+
+.organizer-profile-events article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 16px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background: #fbfcff;
+}
+
+.organizer-profile-events h3 {
+  margin: 0;
+
+  color: var(--navy);
+
+  font-size: 16px;
+}
+
+.organizer-profile-events p {
+  margin: 6px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.organizer-profile-event-status {
+  padding: 7px 11px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.organizer-profile-event-status.active {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.organizer-profile-event-status.completed {
+  background: #eef1f5;
+  color: var(--muted);
+}
+
+.organizer-profile-event-status.pending {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+
+/* =========================================================
+   EMPTY, LOADING, AND ERROR STATES
+========================================================= */
+
+.organizer-profile-state,
+.organizer-profile-empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+
+  text-align: center;
+}
+
+.organizer-profile-state {
+  min-height: 420px;
+
+  padding: 40px;
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  background: white;
+
+  box-shadow: var(--shadow-sm);
+}
+
+.organizer-profile-state h2 {
+  margin: 0;
+
+  color: var(--navy);
+}
+
+.organizer-profile-state p {
+  margin: 0;
+
+  color: var(--muted);
+}
+
+.organizer-profile-state.error {
+  color: var(--danger);
+}
+
+.organizer-profile-empty {
+  min-height: 190px;
+
+  padding: 25px;
+}
+
+.organizer-profile-empty span {
+  font-size: 34px;
+}
+
+.organizer-profile-empty h3 {
+  margin: 0;
+
+  color: var(--navy);
+}
+
+.organizer-profile-empty p {
+  margin: 0;
+
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 1050px) {
+  .organizer-profile-stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .organizer-profile-hero {
+    grid-template-columns: 1fr;
+
+    text-align: center;
+  }
+
+  .organizer-profile-logo {
+    margin: 0 auto;
+  }
+
+  .organizer-profile-badges {
+    justify-content: center;
+  }
+
+  .organizer-profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .organizer-profile-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 620px) {
+  .organizer-profile-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .organizer-profile-edit-button {
+    width: 100%;
+  }
+
+  .organizer-profile-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .organizer-profile-events article {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .organizer-profile-event-status {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 430px) {
+  .organizer-profile-page {
+    padding: 20px 12px;
+  }
+
+  .organizer-profile-hero,
+  .organizer-profile-card {
+    padding: 20px;
+  }
+
+  .organizer-profile-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   EDIT ORGANIZER PROFILE HEADER
+========================================================= */
+
+.organizer-edit-header {
+  padding: 30px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #101b3d,
+      #1f3d90 58%,
+      #3157e5
+    );
+
+  color: white;
+
+  box-shadow:
+    0 20px 45px rgba(16, 27, 61, 0.18);
+}
+
+.organizer-edit-header .organizer-profile-eyebrow {
+  color: #bed0ff;
+}
+
+.organizer-edit-header h1 {
+  margin: 0;
+
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.organizer-edit-header > p:last-child {
+  max-width: 760px;
+
+  margin: 12px 0 0;
+
+  color: #dce5ff;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   EDIT ORGANIZER PROFILE FORM
+========================================================= */
+
+.organizer-edit-form {
+  display: grid;
+  gap: 20px;
+}
+
+.organizer-edit-card {
+  padding: 26px;
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  background: white;
+
+  box-shadow: var(--shadow-sm);
+}
+
+.organizer-edit-card h2 {
+  margin: 0 0 20px;
+
+  color: var(--navy);
+
+  font-size: 23px;
+  letter-spacing: -0.025em;
+}
+
+.organizer-edit-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.organizer-edit-field {
+  display: grid;
+  gap: 8px;
+}
+
+.organizer-edit-field > span {
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.organizer-edit-field input,
+.organizer-edit-field select,
+.organizer-edit-field textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 12px 13px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+
+  background: white;
+  color: var(--navy);
+
+  font: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.organizer-edit-field textarea {
+  min-height: 130px;
+
+  resize: vertical;
+
+  line-height: 1.6;
+}
+
+.organizer-edit-field input:focus,
+.organizer-edit-field select:focus,
+.organizer-edit-field textarea:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 4px rgba(49, 87, 229, 0.1);
+}
+
+.organizer-edit-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ORGANIZATION LOGO EDITOR
+========================================================= */
+
+.organizer-logo-editor {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  flex-wrap: wrap;
+}
+
+.organizer-logo-editor > img,
+.organizer-logo-placeholder {
+  width: 120px;
+  height: 120px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border: 4px solid var(--primary-soft);
+  border-radius: 24px;
+
+  background: var(--primary);
+  color: white;
+
+  object-fit: cover;
+
+  font-size: 44px;
+  font-weight: 800;
+
+  box-shadow:
+    0 16px 32px rgba(49, 87, 229, 0.18);
+}
+
+.organizer-logo-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.organizer-logo-controls p {
+  width: 100%;
+
+  margin: 4px 0 0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.organizer-file-button,
+.organizer-remove-logo-button {
+  min-height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.organizer-file-button {
+  border: 1px solid var(--primary);
+
+  background: var(--primary);
+  color: white;
+}
+
+.organizer-file-button:hover {
+  border-color: var(--primary-dark);
+
+  background: var(--primary-dark);
+}
+
+.organizer-file-button input {
+  display: none;
+}
+
+.organizer-remove-logo-button {
+  border: 1px solid #fecaca;
+
+  background: #fff1f2;
+  color: #dc2626;
+}
+
+.organizer-remove-logo-button:hover {
+  border-color: #fca5a5;
+
+  background: #ffe4e6;
+}
+
+
+/* =========================================================
+   EDIT FORM MESSAGES
+========================================================= */
+
+.organizer-edit-message {
+  padding: 14px 16px;
+
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.organizer-edit-message.error {
+  border: 1px solid #fecaca;
+
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.organizer-edit-message.success {
+  border: 1px solid #bbf7d0;
+
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+
+/* =========================================================
+   EDIT FORM ACTIONS
+========================================================= */
+
+.organizer-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  padding: 20px 0 6px;
+}
+
+.organizer-cancel-button,
+.organizer-save-button {
+  min-height: 46px;
+
+  padding: 0 18px;
+
+  border-radius: 11px;
+
+  cursor: pointer;
+
+  font-weight: 750;
+}
+
+.organizer-cancel-button {
+  border: 1px solid var(--border);
+
+  background: white;
+  color: var(--navy);
+}
+
+.organizer-cancel-button:hover {
+  border-color: var(--primary);
+
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.organizer-save-button {
+  border: 1px solid var(--primary);
+
+  background: var(--primary);
+  color: white;
+
+  box-shadow:
+    0 10px 20px rgba(49, 87, 229, 0.18);
+}
+
+.organizer-save-button:hover {
+  border-color: var(--primary-dark);
+
+  background: var(--primary-dark);
+}
+
+.organizer-cancel-button:disabled,
+.organizer-save-button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+
+/* =========================================================
+   EDIT FORM RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 760px) {
+  .organizer-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .organizer-logo-editor {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .organizer-edit-header,
+  .organizer-edit-card {
+    padding: 20px;
+  }
+
+  .organizer-edit-actions {
+    flex-direction: column-reverse;
+  }
+
+  .organizer-cancel-button,
+  .organizer-save-button {
+    width: 100%;
+  }
+
+  .organizer-logo-controls {
+    width: 100%;
+  }
+
+  .organizer-file-button,
+  .organizer-remove-logo-button {
+    width: 100%;
+  }
+}

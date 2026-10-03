@@ -37,6 +37,8 @@ const INITIAL_STATS = {
   certificatesIssued: 0,
   plannedPayments: 0,
   averageRating: "0.0",
+  staffingAssistance: 0,
+  emergencyHiring: 0,
 };
 
 
@@ -64,25 +66,11 @@ const QUICK_ACTIONS = [
     icon: "📩",
     route: "/event-requests",
   },
-   {
-    title: "Analytics",
-    description: "View event, volunteer, payment, certificate and trust analytics.",
-    icon: "📊",
-    route: "/organizer-analytics",
-  },
-
   {
     title: "Volunteers",
     description: "View approved volunteers.",
     icon: "👥",
     route: "/approved-volunteers",
-  },
-  {
-    title: "Message Volunteers",
-    description:
-      "Send updates to primary, standby, confirmed, or declined volunteers.",
-    icon: "📢",
-    route: "/organizer-broadcast",
   },
   {
     title: "Attendance",
@@ -109,13 +97,19 @@ const QUICK_ACTIONS = [
     route: "/payment-management",
   },
   {
-  title: "Global Search",
-  description:
-    "Search events, volunteers, organizers, certificates, and reports.",
-  icon: "🔎",
-  route: "/global-search",
-},
-
+    title: "Need Assistance",
+    description: "Ask the Evenciaga team to plan your volunteer workforce.",
+    icon: "🧑‍💼",
+    route: "/create-event?assistance=true",
+    assistance: true,
+  },
+  {
+    title: "Emergency Hiring",
+    description: "Request urgent volunteers when your event has a shortage.",
+    icon: "🚨",
+    route: "/emergency-hiring",
+    emergency: true,
+  },
 ];
 
 
@@ -139,10 +133,6 @@ function OrganizerDashboard() {
   const [events, setEvents] = useState([]);
   const [requests, setRequests] = useState([]);
   const [stats, setStats] = useState(INITIAL_STATS);
-
-  // Number displayed on the organizer notification bell.
-  const [unreadNotifications, setUnreadNotifications] =
-    useState(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -179,19 +169,6 @@ function OrganizerDashboard() {
 
         const organizerData = userSnapshot.data();
         setUserData(organizerData);
-
-        // UNREAD ORGANIZER NOTIFICATIONS
-        const organizerNotificationsSnapshot = await getDocs(
-          query(
-            collection(db, "notifications"),
-            where("organizerId", "==", currentUser.uid),
-            where("isRead", "==", false)
-          )
-        );
-
-        setUnreadNotifications(
-          organizerNotificationsSnapshot.size
-        );
 
         // ORGANIZER EVENTS
         const eventsSnapshot = await getDocs(
@@ -334,6 +311,8 @@ function OrganizerDashboard() {
           plannedPayments,
 
           averageRating,
+          staffingAssistance: organizerEvents.filter((event) => event.staffingStatus === "assistance_requested" || event.staffingStatus === "pending").length,
+          emergencyHiring: organizerEvents.filter((event) => event.emergencyHiringStatus === "open" || event.emergencyHiringRequired === true).length,
         });
       } catch (dashboardError) {
         console.error(
@@ -422,6 +401,21 @@ function OrganizerDashboard() {
   };
 
 
+  const eventsNeedingStaffing = events.filter(
+    (event) =>
+      event.staffingStatus === "assistance_requested" ||
+      event.staffingStatus === "pending"
+  );
+
+  const eventsWithEmergency = events.filter(
+    (event) =>
+      event.emergencyHiringStatus === "open" ||
+      event.emergencyHiringRequired === true
+  );
+
+  const staffingAssistanceCount = eventsNeedingStaffing.length;
+  const emergencyHiringCount = eventsWithEmergency.length;
+
   // --------------------------------------------------------
   // LOADING SCREEN
   // --------------------------------------------------------
@@ -497,21 +491,11 @@ function OrganizerDashboard() {
         <div className="organizer-dashboard-top-actions">
           <button
             type="button"
-            className="organizer-topbar-button organizer-notification-button"
-            onClick={() =>
-              navigate("/organizer-notifications")
-            }
-            aria-label={`Open organizer notifications. ${unreadNotifications} unread.`}
+            className="organizer-topbar-button"
+            onClick={() => navigate("/notifications")}
+            aria-label="Open notifications"
           >
-            <span aria-hidden="true">🔔</span>
-
-            {unreadNotifications > 0 && (
-              <span className="organizer-notification-count">
-                {unreadNotifications > 99
-                  ? "99+"
-                  : unreadNotifications}
-              </span>
-            )}
+            🔔
           </button>
 
           <button
@@ -586,6 +570,14 @@ function OrganizerDashboard() {
               onClick={() => navigate("/my-events")}
             >
               View My Events
+            </button>
+
+            <button
+              type="button"
+              className="organizer-emergency-cta"
+              onClick={() => navigate("/emergency-hiring")}
+            >
+              🚨 Emergency Hiring
             </button>
           </div>
         </div>
@@ -761,6 +753,73 @@ function OrganizerDashboard() {
             </div>
           </section>
 
+
+          {/* ================================================
+              STAFFING ASSISTANCE
+          ================================================ */}
+
+          <section className="organizer-dashboard-panel organizer-assistance-panel">
+            <div className="organizer-section-heading">
+              <div>
+                <p className="dashboard-eyebrow">Evenciaga Support</p>
+                <h2>Need Help With Staffing?</h2>
+              </div>
+              <span className="organizer-feature-badge">New</span>
+            </div>
+
+            <p className="organizer-feature-text">
+              You do not need to decide every volunteer role yourself. Tell the Evenciaga team about your event and our administration team can recommend how many people and which roles are needed.
+            </p>
+
+            <div className="organizer-feature-actions">
+              <button
+                type="button"
+                className="organizer-feature-button"
+                onClick={() => navigate("/create-event?assistance=true")}
+              >
+                🧑‍💼 Request Staffing Assistance
+              </button>
+              <button
+                type="button"
+                className="organizer-feature-button secondary"
+                onClick={() => navigate("/my-events")}
+              >
+                View Staffing Status
+              </button>
+            </div>
+          </section>
+
+          {/* ================================================
+              EMERGENCY HIRING
+          ================================================ */}
+
+          <section className="organizer-dashboard-panel organizer-emergency-panel">
+            <div className="organizer-section-heading">
+              <div>
+                <p className="dashboard-eyebrow">Urgent Workforce Support</p>
+                <h2>Emergency Hiring</h2>
+              </div>
+              <span className="organizer-emergency-badge">🚨 Urgent</span>
+            </div>
+
+            <p className="organizer-feature-text">
+              If a volunteer cancels or you suddenly need more people, request an urgent replacement. Evenciaga can use standby volunteers first and escalate the shortage to emergency recruitment.
+            </p>
+
+            <div className="organizer-emergency-summary">
+              <div>
+                <strong>{eventsWithEmergency.length}</strong>
+                <span>Events needing emergency support</span>
+              </div>
+              <button
+                type="button"
+                className="organizer-emergency-button"
+                onClick={() => navigate("/emergency-hiring")}
+              >
+                Request Emergency Volunteers →
+              </button>
+            </div>
+          </section>
 
           {/* ================================================
               RECENT EVENTS
@@ -944,6 +1003,30 @@ function OrganizerDashboard() {
 
               <button
                 type="button"
+                onClick={() => navigate("/create-event?assistance=true")}
+              >
+                <span className="attention-icon assistance">🧑‍💼</span>
+                <div>
+                  <strong>{stats.staffingAssistance} staffing assistance request{stats.staffingAssistance === 1 ? "" : "s"}</strong>
+                  <p>Let the administration team plan volunteer roles.</p>
+                </div>
+                <b>→</b>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/emergency-hiring")}
+              >
+                <span className="attention-icon emergency">🚨</span>
+                <div>
+                  <strong>{stats.emergencyHiring} emergency hiring request{stats.emergencyHiring === 1 ? "" : "s"}</strong>
+                  <p>Get urgent volunteer replacements.</p>
+                </div>
+                <b>→</b>
+              </button>
+
+              <button
+                type="button"
                 onClick={() =>
                   navigate("/payment-management")
                 }
@@ -959,28 +1042,6 @@ function OrganizerDashboard() {
 
                   <p>
                     Review paid-event records.
-                  </p>
-                </div>
-
-                <b>→</b>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/issue-certificates")
-                }
-              >
-                <span className="attention-icon accent">
-                  🏆
-                </span>
-
-                <div>
-                  <strong>
-                    Issue certificates
-                  </strong>
-
-                  <p>
-                    Issue certificates to eligible volunteers.
                   </p>
                 </div>
 

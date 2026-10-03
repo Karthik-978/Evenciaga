@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">evenciaga</string>
+    <string name="title_activity_main">evenciaga</string>
+    <string name="package_name">com.evenciaga.app</string>
+    <string name="custom_url_scheme">com.evenciaga.app</string>
+</resources>

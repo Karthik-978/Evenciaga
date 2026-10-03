@@ -50,6 +50,15 @@ import OrganizerAnalytics from "./pages/OrganizerAnalytics";
 import ManageOrganizers from "./pages/ManageOrganizers";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import GlobalSearch from "./pages/GlobalSearch";
+import AdminStaffingRequests from "./pages/AdminStaffingRequests";
+import OrganizerStaffingReview from "./pages/OrganizerStaffingReview";
+import VolunteerEventDetails from "./pages/VolunteerEventDetails";
+import VolunteerStaffingApplications from "./pages/VolunteerStaffingApplications";
+import AdminVolunteerSelection from "./pages/AdminVolunteerSelection";
+import EventDetails from "./pages/EventDetails";
+import VolunteerRoleApply from "./pages/VolunteerRoleApply";
+import OrganizerApplicants from "./pages/OrganizerApplicants";
+import SelectVolunteers from "./pages/SelectVolunteers";
 function App() {
 
   return (
@@ -329,6 +338,84 @@ function App() {
   element={
     <ProtectedRoute>
       <GlobalSearch />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/admin/staffing-requests"
+  element={
+    <ProtectedRoute>
+      <AdminStaffingRequests />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/organizer/staffing-plans"
+  element={
+    <ProtectedRoute>
+      <OrganizerStaffingReview />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/volunteer-event/:id"
+  element={
+    <ProtectedRoute>
+      <VolunteerEventDetails />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/volunteer-staffing"
+  element={
+    <ProtectedRoute>
+      <VolunteerStaffingApplications />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/volunteer-selection/:eventId"
+  element={
+    <ProtectedRoute>
+      <AdminVolunteerSelection />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/event-details/:id"
+  element={
+    <ProtectedRoute>
+      <EventDetails />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/volunteer-role-apply/:eventId/:roleIndex"
+  element={
+    <ProtectedRoute>
+      <VolunteerRoleApply />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/organizer-applicants"
+  element={
+    <ProtectedRoute>
+      <OrganizerApplicants />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/select-volunteers"
+  element={
+    <ProtectedRoute>
+      <SelectVolunteers />
     </ProtectedRoute>
   }
 />

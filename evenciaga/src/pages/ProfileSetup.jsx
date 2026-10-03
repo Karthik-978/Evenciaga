@@ -17,8 +17,7 @@ function ProfileSetup() {
 
   const [college, setCollege] = useState("");
   const [degree, setDegree] = useState("");
-  const [graduationYear, setGraduationYear] =
-    useState("");
+  const [graduationYear, setGraduationYear] = useState("");
 
   const [bio, setBio] = useState("");
 
@@ -27,20 +26,23 @@ function ProfileSetup() {
   const [interests, setInterests] = useState("");
 
   const [availability, setAvailability] = useState("");
-  const [preferredRoles, setPreferredRoles] =
+  const [preferredRoles, setPreferredRoles] = useState("");
+  const [preferredEventTypes, setPreferredEventTypes] =
     useState("");
-  const [
-    preferredEventTypes,
-    setPreferredEventTypes,
-  ] = useState("");
 
   const [linkedin, setLinkedin] = useState("");
 
-  const [selectedImage, setSelectedImage] =
-    useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
-  const [imagePreview, setImagePreview] =
-    useState("");
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
+
+  const [locationData, setLocationData] = useState({
+    latitude: null,
+    longitude: null,
+    accuracy: null,
+  });
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -55,6 +57,132 @@ function ProfileSetup() {
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean);
+
+  /*
+   * ---------------------------------------------------------
+   * GET CURRENT LOCATION
+   * ---------------------------------------------------------
+   */
+
+  const detectLocation = () => {
+    setError("");
+    setLocationMessage("");
+
+    if (!navigator.geolocation) {
+      setError(
+        "Location services are not supported by this browser."
+      );
+      return;
+    }
+
+    setLocationLoading(true);
+    setLocationMessage("Detecting your location...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+          setLocationData({
+            latitude,
+            longitude,
+            accuracy,
+          });
+
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1&accept-language=en`
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              "Unable to convert your location into an address."
+            );
+          }
+
+          const data = await response.json();
+
+          const address = data.address || {};
+
+          const detectedCity =
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            address.county ||
+            "";
+
+          const detectedState =
+            address.state || "";
+
+          if (detectedCity) {
+            setCity(detectedCity);
+          }
+
+          if (detectedState) {
+            setState(detectedState);
+          }
+
+          setLocationMessage(
+            `Location detected successfully. Accuracy: approximately ${Math.round(
+              accuracy
+            )} metres.`
+          );
+        } catch (locationError) {
+          console.error(
+            "Location detection error:",
+            locationError
+          );
+
+          /*
+           * Even if reverse geocoding fails,
+           * GPS coordinates were still captured.
+           */
+          setLocationMessage(
+            "GPS location captured, but the address could not be determined. You can enter your city and state manually."
+          );
+        } finally {
+          setLocationLoading(false);
+        }
+      },
+      (locationError) => {
+        console.error(
+          "Browser geolocation error:",
+          locationError
+        );
+
+        let message =
+          "Unable to detect your location.";
+
+        if (locationError.code === 1) {
+          message =
+            "Location permission was denied. Please allow location access in your browser.";
+        } else if (locationError.code === 2) {
+          message =
+            "Your location could not be determined.";
+        } else if (locationError.code === 3) {
+          message =
+            "Location detection timed out. Please try again.";
+        }
+
+        setError(message);
+        setLocationMessage("");
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000,
+      }
+    );
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * IMAGE
+   * ---------------------------------------------------------
+   */
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
@@ -82,6 +210,12 @@ function ProfileSetup() {
     setSelectedImage(file);
     setImagePreview(URL.createObjectURL(file));
   };
+
+  /*
+   * ---------------------------------------------------------
+   * CLOUDINARY
+   * ---------------------------------------------------------
+   */
 
   const uploadProfileImage = async () => {
     if (!selectedImage) {
@@ -116,6 +250,12 @@ function ProfileSetup() {
 
     return uploadData.secure_url || "";
   };
+
+  /*
+   * ---------------------------------------------------------
+   * SAVE PROFILE
+   * ---------------------------------------------------------
+   */
 
   const handleSave = async (event) => {
     event.preventDefault();
@@ -215,6 +355,19 @@ function ProfileSetup() {
 
         state: state.trim(),
 
+        /*
+         * GPS information
+         */
+        location: {
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+          accuracy: locationData.accuracy,
+          source:
+            locationData.latitude !== null
+              ? "gps"
+              : "manual",
+        },
+
         college: college.trim(),
 
         degree: degree.trim(),
@@ -291,94 +444,77 @@ function ProfileSetup() {
     }
   };
 
+  /*
+   * ---------------------------------------------------------
+   * STYLES
+   * ---------------------------------------------------------
+   */
+
   const pageStyle = {
     minHeight: "100vh",
-
     padding: "36px 16px",
-
     background:
       "linear-gradient(135deg, #eef4ff 0%, #f8fafc 55%, #eefbf5 100%)",
   };
 
   const containerStyle = {
     width: "min(950px, 100%)",
-
     margin: "0 auto",
   };
 
   const cardStyle = {
     padding: "32px",
-
     borderRadius: "20px",
-
     background: "#ffffff",
-
     boxShadow:
       "0 12px 36px rgba(15, 23, 42, 0.09)",
   };
 
   const sectionStyle = {
     marginBottom: "28px",
-
     paddingBottom: "26px",
-
     borderBottom: "1px solid #e5e7eb",
   };
 
   const gridStyle = {
     display: "grid",
-
     gridTemplateColumns:
       "repeat(auto-fit, minmax(240px, 1fr))",
-
     gap: "16px",
   };
 
   const fieldStyle = {
     display: "flex",
-
     flexDirection: "column",
-
     gap: "7px",
   };
 
   const labelStyle = {
     color: "#374151",
-
     fontSize: "14px",
-
     fontWeight: "700",
   };
 
   const inputStyle = {
     width: "100%",
-
     boxSizing: "border-box",
-
     padding: "12px 13px",
-
     border: "1px solid #d1d5db",
-
     borderRadius: "9px",
-
     background: "#ffffff",
-
     color: "#111827",
-
     fontSize: "15px",
-
     outline: "none",
   };
 
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
+
         <section
           style={{
             ...cardStyle,
-
             marginBottom: "22px",
-
             background:
               "linear-gradient(135deg, #1d4ed8, #2563eb)",
           }}
@@ -386,15 +522,10 @@ function ProfileSetup() {
           <p
             style={{
               margin: "0 0 7px",
-
               color: "#bfdbfe",
-
               fontSize: "13px",
-
               fontWeight: "800",
-
               letterSpacing: "1px",
-
               textTransform: "uppercase",
             }}
           >
@@ -404,9 +535,7 @@ function ProfileSetup() {
           <h1
             style={{
               margin: "0 0 10px",
-
               color: "#ffffff",
-
               fontSize: "36px",
             }}
           >
@@ -416,11 +545,8 @@ function ProfileSetup() {
           <p
             style={{
               margin: 0,
-
               maxWidth: "720px",
-
               color: "#dbeafe",
-
               lineHeight: "1.7",
             }}
           >
@@ -432,17 +558,17 @@ function ProfileSetup() {
 
         <div style={cardStyle}>
           <form onSubmit={handleSave}>
+
+            {/* PHOTO */}
+
             <section style={sectionStyle}>
               <h2>Profile Photo</h2>
 
               <div
                 style={{
                   display: "flex",
-
                   alignItems: "center",
-
                   flexWrap: "wrap",
-
                   gap: "20px",
                 }}
               >
@@ -452,13 +578,9 @@ function ProfileSetup() {
                     alt="Profile preview"
                     style={{
                       width: "110px",
-
                       height: "110px",
-
                       borderRadius: "50%",
-
                       objectFit: "cover",
-
                       border: "4px solid #dbeafe",
                     }}
                   />
@@ -466,23 +588,14 @@ function ProfileSetup() {
                   <div
                     style={{
                       width: "110px",
-
                       height: "110px",
-
                       display: "flex",
-
                       alignItems: "center",
-
                       justifyContent: "center",
-
                       borderRadius: "50%",
-
                       background: "#2563eb",
-
                       color: "#ffffff",
-
                       fontSize: "40px",
-
                       fontWeight: "800",
                     }}
                   >
@@ -502,9 +615,7 @@ function ProfileSetup() {
                   <p
                     style={{
                       margin: "9px 0 0",
-
                       color: "#6b7280",
-
                       fontSize: "13px",
                     }}
                   >
@@ -514,10 +625,13 @@ function ProfileSetup() {
               </div>
             </section>
 
+            {/* PERSONAL */}
+
             <section style={sectionStyle}>
               <h2>Personal Information</h2>
 
               <div style={gridStyle}>
+
                 <label style={fieldStyle}>
                   <span style={labelStyle}>
                     Full Name *
@@ -599,13 +713,86 @@ function ProfileSetup() {
                     style={inputStyle}
                   />
                 </label>
+
+              </div>
+
+              {/* LOCATION BUTTON */}
+
+              <div
+                style={{
+                  marginTop: "18px",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  background: "#eff6ff",
+                  border: "1px solid #bfdbfe",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={detectLocation}
+                  disabled={locationLoading}
+                  style={{
+                    padding: "11px 16px",
+                    border: "none",
+                    borderRadius: "9px",
+                    background: locationLoading
+                      ? "#93c5fd"
+                      : "#2563eb",
+                    color: "#ffffff",
+                    fontWeight: "800",
+                    cursor: locationLoading
+                      ? "not-allowed"
+                      : "pointer",
+                  }}
+                >
+                  {locationLoading
+                    ? "Detecting..."
+                    : "📍 Use My Current Location"}
+                </button>
+
+                {locationMessage && (
+                  <p
+                    style={{
+                      margin: "10px 0 0",
+                      color: "#1d4ed8",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {locationMessage}
+                  </p>
+                )}
+
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    color: "#64748b",
+                    fontSize: "12px",
+                  }}
+                >
+                  This fills your city and state. You can
+                  change them manually if necessary.
+                </p>
+
+                <p
+                  style={{
+                    margin: "6px 0 0",
+                    color: "#64748b",
+                    fontSize: "11px",
+                  }}
+                >
+                  Map data © OpenStreetMap contributors
+                </p>
               </div>
             </section>
+
+            {/* EDUCATION */}
 
             <section style={sectionStyle}>
               <h2>Education</h2>
 
               <div style={gridStyle}>
+
                 <label style={fieldStyle}>
                   <span style={labelStyle}>
                     College / Organization *
@@ -657,8 +844,11 @@ function ProfileSetup() {
                     style={inputStyle}
                   />
                 </label>
+
               </div>
             </section>
+
+            {/* ABOUT */}
 
             <section style={sectionStyle}>
               <h2>About You</h2>
@@ -677,14 +867,14 @@ function ProfileSetup() {
                   placeholder="Tell organizers about yourself..."
                   style={{
                     ...inputStyle,
-
                     resize: "vertical",
-
                     fontFamily: "inherit",
                   }}
                 />
               </label>
             </section>
+
+            {/* SKILLS */}
 
             <section style={sectionStyle}>
               <h2>Skills and Interests</h2>
@@ -692,7 +882,6 @@ function ProfileSetup() {
               <p
                 style={{
                   color: "#6b7280",
-
                   fontSize: "14px",
                 }}
               >
@@ -700,6 +889,7 @@ function ProfileSetup() {
               </p>
 
               <div style={gridStyle}>
+
                 <label style={fieldStyle}>
                   <span style={labelStyle}>
                     Skills *
@@ -747,8 +937,11 @@ function ProfileSetup() {
                     style={inputStyle}
                   />
                 </label>
+
               </div>
             </section>
+
+            {/* PREFERENCES */}
 
             <section style={sectionStyle}>
               <h2>Volunteer Preferences</h2>
@@ -756,7 +949,6 @@ function ProfileSetup() {
               <p
                 style={{
                   color: "#6b7280",
-
                   fontSize: "14px",
                 }}
               >
@@ -764,6 +956,7 @@ function ProfileSetup() {
               </p>
 
               <div style={gridStyle}>
+
                 <label style={fieldStyle}>
                   <span style={labelStyle}>
                     Availability
@@ -817,8 +1010,11 @@ function ProfileSetup() {
                     style={inputStyle}
                   />
                 </label>
+
               </div>
             </section>
+
+            {/* LINKEDIN */}
 
             <section
               style={{
@@ -848,15 +1044,10 @@ function ProfileSetup() {
               <div
                 style={{
                   marginBottom: "16px",
-
                   padding: "13px",
-
                   borderRadius: "9px",
-
                   background: "#fee2e2",
-
                   color: "#991b1b",
-
                   fontWeight: "700",
                 }}
               >
@@ -868,15 +1059,10 @@ function ProfileSetup() {
               <div
                 style={{
                   marginBottom: "16px",
-
                   padding: "13px",
-
                   borderRadius: "9px",
-
                   background: "#eff6ff",
-
                   color: "#1d4ed8",
-
                   fontWeight: "700",
                 }}
               >
@@ -889,23 +1075,15 @@ function ProfileSetup() {
               disabled={loading}
               style={{
                 width: "100%",
-
                 padding: "14px 20px",
-
                 border: "none",
-
                 borderRadius: "10px",
-
                 background: loading
                   ? "#93c5fd"
                   : "#2563eb",
-
                 color: "#ffffff",
-
                 fontSize: "16px",
-
                 fontWeight: "800",
-
                 cursor: loading
                   ? "not-allowed"
                   : "pointer",
@@ -915,6 +1093,7 @@ function ProfileSetup() {
                 ? "Creating Profile..."
                 : "Create Profile →"}
             </button>
+
           </form>
         </div>
       </div>

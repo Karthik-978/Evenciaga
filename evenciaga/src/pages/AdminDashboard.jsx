@@ -34,6 +34,13 @@ const ADMIN_ACTIONS = [
     route: "/manage-events",
   },
   {
+  title: "Staffing Requests",
+  description:
+    "Review events that need Evenciaga staffing assistance.",
+  icon: "🧑‍💼",
+  route: "/admin/staffing-requests",
+},
+  {
     title: "Organizer Applications",
     description:
       "Approve or reject organizer applications.",

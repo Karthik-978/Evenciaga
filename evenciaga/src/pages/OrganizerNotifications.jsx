@@ -1,3 +1,7 @@
+// ==========================================================
+// IMPORTS
+// ==========================================================
+
 import {
   useEffect,
   useMemo,
@@ -31,53 +35,58 @@ import {
 import BackButton from "../components/BackButton";
 
 
+// ==========================================================
+// ORGANIZER NOTIFICATIONS
+// ==========================================================
+
 function OrganizerNotifications() {
-  const navigate =
-    useNavigate();
+
+  const navigate = useNavigate();
+
+
+  // ========================================================
+  // STATE
+  // ========================================================
 
   const [
     notifications,
     setNotifications
-  ] =
-    useState([]);
+  ] = useState([]);
 
   const [
     activeFilter,
     setActiveFilter
-  ] =
-    useState("all");
+  ] = useState("all");
 
   const [
     loading,
     setLoading
-  ] =
-    useState(true);
+  ] = useState(true);
 
   const [
     error,
     setError
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     markingAll,
     setMarkingAll
-  ] =
-    useState(false);
+  ] = useState(false);
 
 
-  /* =====================================================
-     AUTH + LOAD
-  ===================================================== */
+  // ========================================================
+  // AUTH + LOAD NOTIFICATIONS
+  // ========================================================
 
   useEffect(() => {
+
     const unsubscribe =
       onAuthStateChanged(
         auth,
-        async (
-          currentUser
-        ) => {
+        async (currentUser) => {
+
           if (!currentUser) {
+
             setError(
               "You must be logged in to view organizer notifications."
             );
@@ -94,20 +103,26 @@ function OrganizerNotifications() {
       );
 
     return unsubscribe;
+
   }, []);
 
 
-  /* =====================================================
-     LOAD
-  ===================================================== */
+  // ========================================================
+  // LOAD NOTIFICATIONS
+  // ========================================================
 
   const loadNotifications =
-    async (
-      organizerId
-    ) => {
+    async (organizerId) => {
+
       try {
+
         setLoading(true);
         setError("");
+
+
+        // --------------------------------------------------
+        // Notifications where organizerId matches
+        // --------------------------------------------------
 
         const organizerQuery =
           query(
@@ -122,6 +137,11 @@ function OrganizerNotifications() {
             )
           );
 
+
+        // --------------------------------------------------
+        // Notifications where recipientId matches
+        // --------------------------------------------------
+
         const recipientQuery =
           query(
             collection(
@@ -134,6 +154,11 @@ function OrganizerNotifications() {
               organizerId
             )
           );
+
+
+        // --------------------------------------------------
+        // Load both queries
+        // --------------------------------------------------
 
         const [
           organizerSnapshot,
@@ -149,13 +174,22 @@ function OrganizerNotifications() {
             )
           ]);
 
+
+        // --------------------------------------------------
+        // Prevent duplicate notifications
+        // --------------------------------------------------
+
         const notificationMap =
           new Map();
 
+
+        // --------------------------------------------------
+        // Organizer notifications
+        // --------------------------------------------------
+
         organizerSnapshot.docs.forEach(
-          (
-            notificationDocument
-          ) => {
+          (notificationDocument) => {
+
             notificationMap.set(
               notificationDocument.id,
               {
@@ -167,11 +201,15 @@ function OrganizerNotifications() {
             );
           }
         );
+
+
+        // --------------------------------------------------
+        // Recipient notifications
+        // --------------------------------------------------
 
         recipientSnapshot.docs.forEach(
-          (
-            notificationDocument
-          ) => {
+          (notificationDocument) => {
+
             notificationMap.set(
               notificationDocument.id,
               {
@@ -183,6 +221,11 @@ function OrganizerNotifications() {
             );
           }
         );
+
+
+        // --------------------------------------------------
+        // Sort newest first
+        // --------------------------------------------------
 
         const notificationData =
           Array.from(
@@ -200,12 +243,15 @@ function OrganizerNotifications() {
               )
           );
 
+
         setNotifications(
           notificationData
         );
+
       } catch (
         notificationError
       ) {
+
         console.error(
           "Organizer notifications error:",
           notificationError
@@ -213,42 +259,48 @@ function OrganizerNotifications() {
 
         setError(
           notificationError?.message ||
-            "Unable to load organizer notifications."
+          "Unable to load organizer notifications."
         );
+
       } finally {
+
         setLoading(false);
+
       }
     };
 
 
-  /* =====================================================
-     TIMESTAMP
-  ===================================================== */
+  // ========================================================
+  // TIMESTAMP HELPER
+  // ========================================================
 
   const getTimestampValue =
-    (
-      value
-    ) => {
+    (value) => {
+
       if (!value) {
         return 0;
       }
 
-      if (
-        value?.toMillis
-      ) {
+
+      // Firebase Timestamp
+      if (value?.toMillis) {
         return value.toMillis();
       }
 
-      if (
-        value?.toDate
-      ) {
+
+      // Firebase Timestamp alternative
+      if (value?.toDate) {
+
         return value
           .toDate()
           .getTime();
       }
 
+
+      // Normal date/string
       const parsedDate =
         new Date(value);
+
 
       return Number.isNaN(
         parsedDate.getTime()
@@ -258,26 +310,33 @@ function OrganizerNotifications() {
     };
 
 
+  // ========================================================
+  // FORMAT NOTIFICATION DATE
+  // ========================================================
+
   const formatNotificationDate =
-    (
-      value
-    ) => {
+    (value) => {
+
       if (!value) {
         return "Date unavailable";
       }
+
 
       const date =
         value?.toDate
           ? value.toDate()
           : new Date(value);
 
+
       if (
         Number.isNaN(
           date.getTime()
         )
       ) {
+
         return "Date unavailable";
       }
+
 
       return date.toLocaleString(
         undefined,
@@ -292,34 +351,39 @@ function OrganizerNotifications() {
     };
 
 
-  /* =====================================================
-     CATEGORY
-  ===================================================== */
+  // ========================================================
+  // NOTIFICATION CATEGORY
+  // ========================================================
 
   const getCategory =
-    (
-      notification
-    ) => {
+    (notification) => {
+
       if (
         notification.category
       ) {
+
         return notification.category;
       }
+
 
       const type =
         String(
           notification.type ||
-            ""
+          ""
         ).toLowerCase();
+
 
       const status =
         String(
           notification.status ||
-            ""
+          ""
         ).toLowerCase();
 
+
       const actionTypes = [
+
         "new-request",
+
         "volunteer-request",
 
         "cancellation",
@@ -340,10 +404,22 @@ function OrganizerNotifications() {
 
         "payment-action-required",
 
-        "report-action-required"
+        "report-action-required",
+
+        // Staffing
+        "staffing_plan_ready",
+
+        "staffing-plan-ready",
+
+        "staffing_changes_requested",
+
+        "staffing-changes-requested"
+
       ];
 
+
       const completedTypes = [
+
         "completed",
 
         "payment-completed",
@@ -357,7 +433,9 @@ function OrganizerNotifications() {
         "volunteer-confirmed",
 
         "attendance-completed"
+
       ];
+
 
       if (
         actionTypes.includes(
@@ -366,8 +444,10 @@ function OrganizerNotifications() {
         notification.requiresAction ===
           true
       ) {
+
         return "action";
       }
+
 
       if (
         completedTypes.includes(
@@ -378,28 +458,31 @@ function OrganizerNotifications() {
         status ===
           "resolved"
       ) {
+
         return "completed";
       }
+
 
       return "information";
     };
 
 
-  /* =====================================================
-     ICONS
-  ===================================================== */
+  // ========================================================
+  // NOTIFICATION ICON
+  // ========================================================
 
   const getNotificationIcon =
-    (
-      notification
-    ) => {
+    (notification) => {
+
       const type =
         String(
           notification.type ||
-            ""
+          ""
         ).toLowerCase();
 
+
       const icons = {
+
         "new-request":
           "📩",
 
@@ -479,8 +562,26 @@ function OrganizerNotifications() {
           "🚩",
 
         resolved:
-          "✅"
+          "✅",
+
+        // ------------------------------------------------
+        // STAFFING ASSISTANCE
+        // ------------------------------------------------
+
+        "staffing_plan_ready":
+          "👥",
+
+        "staffing-plan-ready":
+          "👥",
+
+        "staffing_changes_requested":
+          "🔄",
+
+        "staffing-changes-requested":
+          "🔄"
+
       };
+
 
       return (
         notification.icon ||
@@ -490,27 +591,40 @@ function OrganizerNotifications() {
     };
 
 
-  /* =====================================================
-     ROUTES
-  ===================================================== */
+  // ========================================================
+  // ROUTES
+  // ========================================================
 
   const getActionRoute =
-    (
-      notification
-    ) => {
+    (notification) => {
+
+
+      // ----------------------------------------------------
+      // If notification explicitly provides a route,
+      // use it first.
+      // ----------------------------------------------------
+
       if (
         notification.actionRoute
       ) {
+
         return notification.actionRoute;
       }
+
 
       const type =
         String(
           notification.type ||
-            ""
+          ""
         ).toLowerCase();
 
+
       const routes = {
+
+        // --------------------------------------------------
+        // NORMAL ORGANIZER NOTIFICATIONS
+        // --------------------------------------------------
+
         "new-request":
           "/event-requests",
 
@@ -581,8 +695,40 @@ function OrganizerNotifications() {
           "/reports",
 
         resolved:
-          "/reports"
+          "/reports",
+
+
+        // ==================================================
+        // STAFFING ASSISTANCE
+        // ==================================================
+
+        // Admin has prepared the staffing plan.
+        // Organizer must review it.
+        "staffing_plan_ready":
+          "/organizer/staffing-plans",
+
+        // Support hyphenated version too.
+        "staffing-plan-ready":
+          "/organizer/staffing-plans",
+
+        // Admin has requested changes / organizer
+        // needs to review the staffing plan again.
+        "staffing_changes_requested":
+          "/organizer/staffing-plans",
+
+        // Support hyphenated version too.
+        "staffing-changes-requested":
+          "/organizer/staffing-plans"
+
       };
+
+
+      // ----------------------------------------------------
+      // IMPORTANT:
+      //
+      // If the notification type isn't recognised,
+      // keep the old default behavior.
+      // ----------------------------------------------------
 
       return (
         routes[type] ||
@@ -591,21 +737,23 @@ function OrganizerNotifications() {
     };
 
 
-  /* =====================================================
-     MARK READ
-  ===================================================== */
+  // ========================================================
+  // MARK NOTIFICATION AS READ
+  // ========================================================
 
   const markAsRead =
-    async (
-      notification
-    ) => {
+    async (notification) => {
+
       if (
         notification.isRead
       ) {
+
         return;
       }
 
+
       try {
+
         await updateDoc(
           doc(
             db,
@@ -613,13 +761,20 @@ function OrganizerNotifications() {
             notification.id
           ),
           {
+
             isRead:
               true,
 
             readAt:
               serverTimestamp()
+
           }
         );
+
+
+        // --------------------------------------------------
+        // Update UI immediately
+        // --------------------------------------------------
 
         setNotifications(
           (
@@ -631,18 +786,22 @@ function OrganizerNotifications() {
               ) =>
                 currentNotification.id ===
                 notification.id
+
                   ? {
                       ...currentNotification,
 
                       isRead:
                         true
                     }
+
                   : currentNotification
             )
         );
+
       } catch (
         readError
       ) {
+
         console.error(
           "Unable to mark notification as read:",
           readError
@@ -651,12 +810,13 @@ function OrganizerNotifications() {
     };
 
 
-  /* =====================================================
-     MARK ALL
-  ===================================================== */
+  // ========================================================
+  // MARK ALL AS READ
+  // ========================================================
 
   const markAllAsRead =
     async () => {
+
       const unreadNotifications =
         notifications.filter(
           (
@@ -665,25 +825,32 @@ function OrganizerNotifications() {
             !notification.isRead
         );
 
+
       if (
         unreadNotifications.length ===
         0
       ) {
+
         return;
       }
 
+
       try {
+
         setMarkingAll(true);
+
 
         const batch =
           writeBatch(
             db
           );
 
+
         unreadNotifications.forEach(
           (
             notification
           ) => {
+
             batch.update(
               doc(
                 db,
@@ -691,17 +858,22 @@ function OrganizerNotifications() {
                 notification.id
               ),
               {
+
                 isRead:
                   true,
 
                 readAt:
                   serverTimestamp()
+
               }
             );
+
           }
         );
 
+
         await batch.commit();
+
 
         setNotifications(
           (
@@ -711,16 +883,20 @@ function OrganizerNotifications() {
               (
                 notification
               ) => ({
+
                 ...notification,
 
                 isRead:
                   true
+
               })
             )
         );
+
       } catch (
         batchError
       ) {
+
         console.error(
           "Unable to mark all notifications as read:",
           batchError
@@ -729,45 +905,69 @@ function OrganizerNotifications() {
         setError(
           "Unable to update notifications."
         );
+
       } finally {
+
         setMarkingAll(false);
+
       }
     };
 
 
-  /* =====================================================
-     OPEN
-  ===================================================== */
+  // ========================================================
+  // OPEN NOTIFICATION
+  // ========================================================
 
   const openNotification =
-    async (
-      notification
-    ) => {
+    async (notification) => {
+
+      // ----------------------------------------------------
+      // First mark notification as read
+      // ----------------------------------------------------
+
       await markAsRead(
         notification
       );
 
-      navigate(
+
+      // ----------------------------------------------------
+      // Then navigate to the correct page
+      //
+      // Staffing notification:
+      //
+      // staffing_plan_ready
+      //        ↓
+      // /organizer/staffing-plans
+      // ----------------------------------------------------
+
+      const destination =
         getActionRoute(
           notification
-        )
+        );
+
+
+      navigate(
+        destination
       );
     };
 
 
-  /* =====================================================
-     FILTER
-  ===================================================== */
+  // ========================================================
+  // FILTER
+  // ========================================================
 
   const filteredNotifications =
     useMemo(
       () => {
+
         if (
           activeFilter ===
           "all"
         ) {
+
           return notifications;
         }
+
 
         return notifications.filter(
           (
@@ -778,6 +978,7 @@ function OrganizerNotifications() {
             ) ===
             activeFilter
         );
+
       },
       [
         notifications,
@@ -786,14 +987,16 @@ function OrganizerNotifications() {
     );
 
 
-  /* =====================================================
-     COUNTS
-  ===================================================== */
+  // ========================================================
+  // COUNTS
+  // ========================================================
 
   const counts =
     useMemo(
       () => {
+
         return {
+
           all:
             notifications.length,
 
@@ -837,20 +1040,28 @@ function OrganizerNotifications() {
                 ) ===
                 "completed"
             ).length
+
         };
+
       },
-      [notifications]
+      [
+        notifications
+      ]
     );
 
 
-  /* =====================================================
-     LOADING
-  ===================================================== */
+  // ========================================================
+  // LOADING
+  // ========================================================
 
   if (loading) {
+
     return (
+
       <div className="page-container">
+
         <div className="page-card empty-state">
+
           <div className="empty-icon">
             🔔
           </div>
@@ -864,22 +1075,28 @@ function OrganizerNotifications() {
             and actions requiring your
             attention.
           </p>
+
         </div>
+
       </div>
     );
   }
 
 
-  /* =====================================================
-     ERROR
-  ===================================================== */
+  // ========================================================
+  // ERROR
+  // ========================================================
 
   if (error) {
+
     return (
+
       <div className="page-container">
+
         <BackButton />
 
         <div className="page-card empty-state">
+
           <div className="empty-icon">
             ⚠️
           </div>
@@ -891,23 +1108,32 @@ function OrganizerNotifications() {
           <p>
             {error}
           </p>
+
         </div>
+
       </div>
     );
   }
 
 
-  /* =====================================================
-     PAGE
-  ===================================================== */
+  // ========================================================
+  // PAGE
+  // ========================================================
 
   return (
+
     <div className="page-container">
 
+      {/* ====================================================
+          PAGE HEADER
+      ==================================================== */}
+
       <section className="page-card organizer-hero">
+
         <BackButton />
 
         <div>
+
           <p className="dashboard-eyebrow">
             Organizer Workspace
           </p>
@@ -922,7 +1148,9 @@ function OrganizerNotifications() {
             confirmations, payments and
             other actions requiring organizer attention.
           </p>
+
         </div>
+
 
         <div
           className={
@@ -931,14 +1159,19 @@ function OrganizerNotifications() {
               : "organizer-status approved"
           }
         >
+
           {counts.unread > 0
             ? `🔔 ${counts.unread} Unread`
             : "✓ All Read"}
+
         </div>
+
       </section>
 
 
-      {/* SUMMARY */}
+      {/* ====================================================
+          SUMMARY
+      ==================================================== */}
 
       <section className="dashboard-stats-grid">
 
@@ -977,7 +1210,9 @@ function OrganizerNotifications() {
       </section>
 
 
-      {/* FILTERS */}
+      {/* ====================================================
+          FILTERS
+      ==================================================== */}
 
       <section
         className="page-card"
@@ -992,6 +1227,7 @@ function OrganizerNotifications() {
             "22px"
         }}
       >
+
         <div
           style={{
             display:
@@ -1010,6 +1246,7 @@ function OrganizerNotifications() {
               "14px"
           }}
         >
+
           <div
             style={{
               display:
@@ -1022,6 +1259,7 @@ function OrganizerNotifications() {
                 "10px"
             }}
           >
+
             {[
               {
                 key:
@@ -1054,107 +1292,158 @@ function OrganizerNotifications() {
                 label:
                   `Completed (${counts.completed})`
               }
+
             ].map(
               (
                 filter
               ) => (
+
                 <button
                   type="button"
                   key={
                     filter.key
                   }
+
                   className={
                     activeFilter ===
                     filter.key
+
                       ? "primary-action-button"
+
                       : "secondary-action-button"
                   }
+
                   onClick={() =>
                     setActiveFilter(
                       filter.key
                     )
                   }
                 >
+
                   {filter.label}
+
                 </button>
+
               )
             )}
+
           </div>
+
+
+          {/* MARK ALL READ */}
 
           <button
             type="button"
             className="secondary-action-button"
+
             onClick={
               markAllAsRead
             }
+
             disabled={
               markingAll ||
               counts.unread ===
                 0
             }
           >
+
             {markingAll
               ? "Updating..."
               : "✓ Mark All Read"}
+
           </button>
+
         </div>
+
       </section>
 
 
-      {/* NOTIFICATIONS */}
+      {/* ====================================================
+          NOTIFICATION LIST
+      ==================================================== */}
 
       {filteredNotifications.length >
       0 ? (
+
         <div className="notifications-list">
+
           {filteredNotifications.map(
             (
               notification
             ) => {
+
               const category =
                 getCategory(
                   notification
                 );
 
+
               return (
+
                 <article
                   key={
                     notification.id
                   }
+
                   className={`notification-card ${
                     notification.isRead
                       ? "read"
                       : "unread"
                   }`}
                 >
+
+                  {/* ----------------------------------------
+                      ICON
+                  ---------------------------------------- */}
+
                   <div className="notification-icon">
+
                     {getNotificationIcon(
                       notification
                     )}
+
                   </div>
+
+
+                  {/* ----------------------------------------
+                      CONTENT
+                  ---------------------------------------- */}
 
                   <div className="notification-content">
 
                     <div className="notification-header">
+
                       <div>
 
                         {category ===
                           "action" && (
+
                           <p className="dashboard-eyebrow">
                             Action Required
                           </p>
+
                         )}
 
+
                         <h2>
+
                           {notification.title ||
                             "Organizer Notification"}
+
                         </h2>
 
+
                         <p>
+
                           {notification.message ||
                             "No message was provided."}
+
                         </p>
 
                       </div>
+
+
+                      {/* STATUS */}
 
                       <span
                         className={`notification-status ${
@@ -1163,83 +1452,128 @@ function OrganizerNotifications() {
                             : "unread"
                         }`}
                       >
+
                         {notification.isRead
                           ? "Read"
                           : "New"}
+
                       </span>
+
                     </div>
 
+
+                    {/* --------------------------------------
+                        META
+                    -------------------------------------- */}
 
                     <div className="notification-meta">
 
                       <span>
+
                         📅{" "}
+
                         {formatNotificationDate(
                           notification.createdAt
                         )}
+
                       </span>
+
 
                       <span>
+
                         {category ===
                         "action"
+
                           ? "🔴 Needs Action"
+
                           : category ===
-                              "completed"
+                            "completed"
+
                             ? "✅ Completed"
+
                             : "🔵 Information"}
+
                       </span>
 
+
                       {notification.eventTitle && (
+
                         <span>
+
                           🎯{" "}
+
                           {
                             notification.eventTitle
                           }
+
                         </span>
+
                       )}
 
                     </div>
 
 
+                    {/* --------------------------------------
+                        ACTION BUTTONS
+                    -------------------------------------- */}
+
                     <div className="event-action-buttons">
 
                       <button
                         type="button"
+
                         className="primary-action-button"
+
                         onClick={() =>
                           openNotification(
                             notification
                           )
                         }
                       >
+
                         {notification.actionLabel ||
                           "Open"}
+
                       </button>
 
+
                       {!notification.isRead && (
+
                         <button
                           type="button"
+
                           className="secondary-action-button"
+
                           onClick={() =>
                             markAsRead(
                               notification
                             )
                           }
                         >
+
                           Mark as Read
+
                         </button>
+
                       )}
 
                     </div>
 
                   </div>
+
                 </article>
+
               );
+
             }
           )}
+
         </div>
+
       ) : (
+
         <div className="page-card empty-state">
+
           <div className="empty-icon">
             🔔
           </div>
@@ -1253,7 +1587,9 @@ function OrganizerNotifications() {
             notifications in this
             category.
           </p>
+
         </div>
+
       )}
 
     </div>
@@ -1261,18 +1597,26 @@ function OrganizerNotifications() {
 }
 
 
+// ==========================================================
+// NOTIFICATION STAT CARD
+// ==========================================================
+
 function OrganizerNotificationStat({
   icon,
   label,
   value
 }) {
+
   return (
+
     <div className="stat-card">
+
       <div className="stat-icon">
         {icon}
       </div>
 
       <div>
+
         <p>
           {label}
         </p>
@@ -1280,10 +1624,16 @@ function OrganizerNotificationStat({
         <h2>
           {value}
         </h2>
+
       </div>
+
     </div>
   );
 }
 
+
+// ==========================================================
+// EXPORT
+// ==========================================================
 
 export default OrganizerNotifications;

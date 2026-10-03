@@ -16,7 +16,7 @@ ReactDOM.createRoot(
 
   <React.StrictMode>
 
-    <BrowserRouter>
+   <BrowserRouter basename="/Evenciaga">
 
       <AuthProvider>
 
